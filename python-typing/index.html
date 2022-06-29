@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<!-- vim: set ts=2 sw=2 sts=2 et: -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1024">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Python Typing by Oleg Bulatov</title>
+  
+  <meta name="description" content="Python Typing - ">
+  <meta name="author" content="Oleg Bulatov">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;700&amp;family=Open+Sans:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <link href="css/google-light.css" rel="stylesheet">
+  <link href="css/impress-dmage.css" rel="stylesheet">
+  <link href="css/impress-common.css" rel="stylesheet">
+  
+  <link rel="shortcut icon" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+
+<body class="impress-not-supported">
+<div class="fallback-message">
+  <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+  <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress"
+  data-transition-duration="800"
+  data-width="950"
+  data-height="750"
+  data-max-scale="3"
+  data-min-scale="0"
+  data-perspective="1000">
+
+<div id="title" class="step slide" data-x="0" data-y="0">
+  <h1>Python Typing</h1>
+  <h3>2022-06-29</h3>
+  <p class="presenter">Oleg Bulatov</p>
+</div>
+
+<div class="step slide" data-x="1000">
+  <h3>What are type annotations?</h3>
+  <p>Python 3.5 (Sep 2015) introduced type hints (<a href="https://peps.python.org/pep-0484/">PEP 484</a>) that allow you to specify the type of a variable or parameter. Most likely you've already seen them.</p>
+  <pre>def _enforce_repository_quota(
+    self,
+    repo_ref<b class="color-blue">: RepositoryReference</b>,
+) <b class="color-blue">-&gt; None</b>:
+    ...</pre>
+</div>
+
+<div class="step slide" data-x="2000">
+  <h3>Why bother?</h3>
+  <pre><code class="language-python">def _enforce_repository_quota(
+    self,
+    repo_ref: RepositoryReference,
+) -&gt; None:
+    ...</code></pre>
+  <p>Type annotations</p>
+  <ul>
+    <li>provide a form of documentation</li>
+    <li>help the computer understand your code</li>
+    <li>reduce possibilities for bugs</li>
+    <li>make code navigation easier</li>
+  </ul>
+</div>
+
+<div class="step slide" data-x="3000">
+  <h3>Static analysis tools</h3>
+  <p>The most prominent tools for static analysis are:</p>
+  <ul>
+    <li><a href="http://mypy-lang.org/">mypy</a></li>
+    <li><a href="https://github.com/microsoft/pyright">pyright</a></li>
+  </ul>
+</div>
+
+<div class="step slide" data-x="4000">
+  <h3>Static analysis tools: mypy</h3>
+  <pre>$ mypy .
+<span class="color-green">Success: no issues found in 831 source files</span></pre>
+</div>
+
+<div class="step slide" data-x="5000">
+  <h3>Static analysis tools: mypy</h3>
+  <figure>
+    <img src="img/bug-free.jpg" alt="Our code is bug free">
+  </figure>
+</div>
+
+<div class="step slide" data-x="6000">
+  <h3>Static analysis tools: mypy</h3>
+  <pre style="font-size: 75%">$ mypy --strict . | wc -l
+   20741
+$ mypy --strict data/registry_model/registry_oci_model.py |
+  grep registry_oci_model.py
+<span class="omit">&hellip;</span> Function is missing a return type annotation
+<span class="omit">&hellip;</span> Use "-&gt; None" if function does not return a value
+<span class="omit">&hellip;</span> Call to untyped function "SyntheticIDHandler" in typed context
+<span class="omit">&hellip;</span> Function is missing a type annotation
+<span class="omit">&hellip; 77 more lines &hellip;</span>
+<span class="omit">&hellip;</span> Name "ManifestDoesNotExist" is not defined
+<span class="omit">&hellip; 93 more lines &hellip;</span></pre>
+</div>
+
+<div class="step slide" data-x="7000">
+  <h3>Static analysis tools: pyright</h3>
+  <p>It can be integrated into your editor.</p>
+  <figure>
+    <img src="img/neovim-pyright-error.png" alt="Pyright error in neovim">
+  </figure>
+</div>
+
+<div class="step slide" data-x="8000">
+  <h3>Static analysis tools: pyright</h3>
+  <p>It works decently even if there are no type hints.</p>
+  <figure>
+    <img src="img/neovim-pyright-nav.png" alt="Help for a method by pyright in neovim">
+  </figure>
+</div>
+
+<div class="step slide" data-x="9000">
+  <h3>Static analysis tools: pyright</h3>
+  <p>If you lie to the compiler, it will get its revenge. <span class="quote-author">Henry Spencer</span></p>
+  <figure>
+    <img src="img/neovim-pyright-types.png" alt="Type hints deduced by pyright in neovim">
+  </figure>
+</div>
+
+<div class="step slide" data-x="10000">
+  <h3>Type hints: overload</h3>
+  <pre style="font-size: 80%; line-height: 1em"><code class="language-python">from typing import Literal, Union, overload
+
+Number = Union[int, float, complex]
+
+@overload
+def mul(a: Literal[0], b: int) -&gt; Literal[0]: ...
+@overload
+def mul(a: int, b: Literal[0]) -&gt; Literal[0]: ...
+@overload
+def mul(a: int, b: int) -&gt; int: ...
+@overload
+def mul(a: float, b: float) -&gt; float: ...
+@overload
+def mul(a: complex, b: complex) -&gt; complex: ...
+
+def mul(a: Number, b: Number) -&gt; Number:
+    return a * b
+
+reveal_type(mul(1, 3))    # builtins.int
+reveal_type(mul(1.2, 3))  # builtins.float
+reveal_type(mul(1, 3j))   # builtins.complex
+reveal_type(mul(42, 0))   # Literal[0]</code></pre>
+</div>
+
+<div class="step slide" data-x="11000">
+  <h3>Type hints: stubs</h3>
+  <p>Dependencies should be annotated with type hints too.</p>
+  <p>If a module cannot be annotated, you can use a stub file (.pyi). It's a normal Python 3 file with all declarations, but without any logic.</p>
+  <pre><code class="language-python">def getlogin() -&gt; str: ...
+def getpid() -&gt; int: ...
+def getppid() -&gt; int: ...
+def strerror(__code: int) -&gt; str: ...
+def umask(__mask: int) -&gt; int: ...</code></pre>
+  <p>If you are lucky, you'll find it on pypi as <code>types-<i>package</i></code>.</p>
+</div>
+
+<div class="step slide" data-x="12000">
+  <h3>Protocols</h3>
+  <pre><code class="language-python">import sys
+from typing import Protocol
+
+class SupportsRead(Protocol):
+    def read(self) -&gt; str: ...
+
+def dump(f: SupportsRead) -&gt; None:
+    print(f.read(), end='')
+
+dump(sys.stdin)</code></pre>
+</div>
+
+<div class="step slide" data-x="13000">
+  <h3>Type hints: generics</h3>
+  <pre><code class="language-python">from typing import Generic, TypeVar
+
+T = TypeVar('T')
+T_co = TypeVar('T_co', covariant=True)
+T_contra = TypeVar('T_contra',
+                   contravariant=True)
+
+class Animal:
+    pass
+
+class Cat(Animal):
+    pass</code></pre>
+</div>
+
+<div class="step slide" data-x="14000">
+  <h3>Type hints: covariance</h3>
+  <pre><code class="language-python">class Box(Generic[T_co]):
+    def __init__(self, item: T_co):
+        self._item = item
+
+    def get(self) -&gt; T_co:
+        return self._item
+
+box1: Box[Animal] = Box(Cat())
+
+# Argument 1 to "Box" has incompatible type
+# "Animal"; expected "Cat"
+box2: Box[Cat] = Box(Animal())</code></pre>
+</div>
+
+<div class="step slide" data-x="15000">
+  <h3>Type hints: contravariance</h3>
+  <pre><code class="language-python">class Groomer(Generic[T_contra]):
+    def groom(self, item: T_contra) -&gt; None:
+        print(item)
+
+# Incompatible types in assignment
+# (expression has type "Groomer[Cat]",
+# variable has type "Groomer[Animal]")
+groomer1: Groomer[Animal] = Groomer[Cat]()
+
+groomer2: Groomer[Cat] = Groomer[Animal]()</code></pre>
+</div>
+
+<div class="step slide" data-x="16000">
+  <h3>LiteralString (Python 3.11)</h3>
+  <pre style="font-size: 70%"><code class="language-python">def run_query(sql: LiteralString) -&gt; ...
+    ...
+
+def caller(
+    arbitrary_string: str,
+    query_string: LiteralString,
+    table_name: LiteralString,
+) -&gt; None:
+    run_query("SELECT * FROM students")       # ok
+    run_query(query_string)                   # ok
+    run_query("SELECT * FROM " + table_name)  # ok
+    run_query(arbitrary_string)               # type checker error
+    run_query(                                # type checker error
+        f"SELECT * FROM students WHERE name = {arbitrary_string}"
+    )</code></pre>
+</div>
+
+<div id="overview" class="step" data-x="8000" data-y="0" data-scale="17">
+</div>
+
+</div>
+<div id="impress-toolbar"></div>
+<script src="js/impress.js"></script>
+<script src="js/highlight.min.js"></script>
+<script>
+  impress().init();
+  hljs.highlightAll();
+</script>
+</body>
+</html>
