@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>Brief introduction to LLMs</title>
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css">
+		<style>
+.no-break {
+	white-space: nowrap;
+}
+.reveal .input {
+	color: #fc0;
+	font-family: monospace;
+}
+.reveal .options {
+	border-radius: 0.5em;
+	border: 0.1em solid #f0f;
+	color: #666;
+	display: inline-block;
+	padding: 0.1em 0.2em;
+	vertical-align: middle;
+}
+.reveal .score {
+	display: inline-block;
+	padding: 0.1em 0.2em 0.1em 0.5em;
+	vertical-align: middle;
+}
+.reveal .generated {
+	color: #f0f;
+}
+.reveal table td {
+	border: 0 none;
+}
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>Brief introduction<br>to LLMs</h1>
+					<p>Oleg Bulatov</p>
+				</section>
+				<section>
+					<h2>Large Language Models</h2>
+					<img src="images/llm-eveywhere.jpg" alt="LLM everywhere">
+				</section>
+				<section>
+					<h2>Demo</h2>
+					<p><a href="https://search.brave.com/search?q=What%20is%20a%20VPC%3F" target="_blank">Brave search</a></p>
+					<p><a href="https://docsgpt.antimetal.com/" target="_blank">AWS Docs GPT</a></p>
+					<p><a href="https://chat.openai.com/share/6faebccf-b720-4993-ae5a-7eeb030677e7" target="_blank">ChatGPT</a></p>
+				</section>
+				<section>
+					<h2>Language Models</h2>
+					<p>A language model is a probabilistic model that assigns probabilities to sequences of words.</p>
+					<div class="fragment">
+						<p class="input">The weather is good today. ✅</p>
+						<p class="input">Rational bird vision velvet valid. ❌</p>
+					</div>
+				</section>
+				<section>
+					<p>It can be used to predict the next word in a sequence.</p>
+					<div><span class="input">The quick brown fox <span class="options"><span class="generated">jumps</span><br>quickly<br>swiftly<br>...<br>sugarless</span><span class="score">✅<br>&nbsp;<br>&nbsp;<br>&nbsp;<br>❌</span></span></div>
+				</section>
+				<section>
+					<p>The ideal language model should know everything.</p>
+					<div><span class="input">Riddle: What word is pronounced the same if you take away four of its five letters? Answer: <span class="options"><span class="generated">Queue</span><br>...<br>Banana</span><span class="score">✅<br>&nbsp;<br>❌</span></span></div>
+				</section>
+				<section>
+					<h2>N-gram model</h2>
+					<p>Assigns a probability to a word based on how often it appears after the previous <span class="no-break">N-1</span> words.</p>
+					<p>The simplest model, it was the state of the art in 1990s.</p>
+				</section>
+				<section data-auto-animate>
+					<h2>3-gram model</h2>
+					<p class="input">The quick brown fox jumps over the lazy dog.</p>
+					<div style="column-count: 2">
+						<div class="input generated">The quick brown</div>
+						<div class="input generated">quick brown fox</div>
+						<div class="input generated" data-id="brown-fox-jumps" style="width: 11em; margin: auto">brown fox jumps</div>
+						<div class="input generated">fox jumps over</div>
+						<div class="input generated">jumps over the</div>
+						<div class="input generated">over the lazy</div>
+						<div class="input generated">the lazy dog</div>
+					</div>
+				</section>
+				<section data-auto-animate>
+					<p>Number of trigrams for Wikipedia data (2008-06-08):</p>
+					<div>
+						<div style="display: inline-block">
+							<div class="input">brown fox attacks</div>
+							<div class="input">brown fox glove</div>
+							<div class="input">brown fox jumped</div>
+							<div class="input" data-id="brown-fox-jumps" style="width: 11em">brown fox jumps</div>
+							<div class="input">brown fox who</div>
+						</div>
+						<div style="display: inline-block">
+							<div>1 time</div>
+							<div>1 time</div>
+							<div>3 times</div>
+							<div>93 times</div>
+							<div>1 time</div>
+						</div>
+					</div>
+					<p>376M unique trigrams in total.</p>
+				</section data-auto-animate>
+				<section>
+					<p class="input">The quick brown fox <span class="generated">jumps <span class="fragment">over</span> <span class="fragment">the BBC announcer from Beaumont and acquired plates to limit its scope</span></span></p>
+				</section>
+				<section>
+					<h2>Pitfalls</h2>
+					<p class="input">What is a banana?<br><span class="generated">It is <span class="options">?</span></span></p>
+					<p>It uses only few previous words, so it can't capture long-range dependencies.</p>
+				</section>
+				<section>
+					<h2>Pitfalls</h2>
+					<p>Similar words (for example, <span class="input">expensive</span> and <span class="input">costly</span>) are treated as completely different. It has to see every word in every possible context.</p>
+				</section>
+				<section>
+					<section>
+						<p>The solution to the second problem is to use a vector representation of words.</p>
+						<p>vector(<span class="input">expensive</span>) = [5.2, -1.3, 0.7, ..., 2.1]</p>
+						<p>vector(<span class="input">costly</span>) = [5.1, -1.2, 0.7, ..., 2.2]</p>
+					</section>
+					<section>
+						<p>The solution to the second problem is to use a vector representation of words. It was proposed in 2003 by Bengio et al. in <a href="https://dl.acm.org/doi/10.5555/944919.944966">A Neural Probabilistic Language Model</a>.</p>
+						<p>It was later improved in 2013 by Mikolov et al. (Google) in <a href="https://arxiv.org/abs/1301.3781">Efficient Estimation of Word Representations in Vector Space</a>.</p>
+						<p>They proposed a new to compute vector representations of words from very large data sets (word2vec), and trained a model on 100B words.</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<figure>
+							<img src="images/map.png" alt="Map of the world" style="height: 500px">
+							<figcaption style="font-size: 80%">
+								New York is at (40.7128° N, 74.0060° W), Paris is at (48.8566° N, 2.3522° E), Lyon is at (45.7640° N, 4.8357° E)
+							</figcaption>
+						</figure>
+					</section>
+					<section>
+						<p>A vector representation of a word is similar to coordinates of a city on a map.</p>
+						<p>New York is at (40.7128° N, 74.0060° W)<br>
+						Paris is at (48.8566° N, 2.3522° E)<br>
+						Lyon is at (45.7640° N, 4.8357° E)</p>
+						<p>Like we can use coordinates to compute distances between cities, we can use vector representations to compute similarity between words.</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Word2Vec (2013)</h2>
+						<img src="images/embeddings.png" alt="Word embeddings" style="background: #fff">
+					</section>
+					<section>
+						<h2>Word2Vec</h2>
+						<p>vector(<span class="input">king</span>) &minus; vector(<span class="input">man</span>)<br>
+						+ vector(<span class="input">woman</span>) ≈ vector(<span class="input">queen</span>)</p>
+						<p>vector(<span class="input">Paris</span>) &minus; vector(<span class="input">France</span>)<br>
+						+ vector(<span class="input">Italy</span>) ≈ vector(<span class="input">Rome</span>)</p>
+					</section>
+				</section>
+				<section>
+					<section>
+						<p>The short context problem was solved in 2017 using an attention mechanism.</p>
+						<p class="input">Wednesday, <span style="opacity: 0.4">Tom and Joe</span> <span style="opacity: 0.1">went to a restaurant and ate dinner.<br> 
+							When they were done they paid for the food and left.<br>
+							But</span> <span style="opacity: 0.4">Tom and Joe didn't</span> <span style="opacity: 0.1">pay for the food.</span> Who did? A: <span class="generated">Wednesday</span></p>
+					</section>
+					<section>
+						<p>The problem with short context was solved in 2017 by Vaswani et al. (Google) in <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>.</p>
+					</section>
+				</section>
+				<section>
+					<img class="r-stretch" src="images/gru-plan.jpg" alt="Decide to train a question answering LLM. Prepare training data. Manually answer millions of questions.">
+				</section>
+				<section>
+					<section>
+						<h2>Generative Pre-Training</h2>
+						<p>First the model is pre-trained on a large corpus of unlabeled text.</p>
+						<p>Then it is fine-tuned on a smaller corpus of labeled text.</p>
+					</section>
+					<section>
+						<p>In 2018, Radford et al. (OpenAI) proposed a way to train a model on a large corpus of unlabled text in <a href="https://s3-us-west-2.amazonaws.com/openai-assets/research-covers/language-unsupervised/language_understanding_paper.pdf">Improving Language Understanding by Generative Pre-Training</a>.</p>
+						<p>A good introduction to GPT is <a href="https://jalammar.github.io/illustrated-gpt2/">The Illustrated GPT-2</a> by Jay Alammar and <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY">Let's build GPT: from scratch, in code, spelled out</a> by Andrej Karpathy.</p>
+					</section>
+				</section>
+				<section>
+					<h2>Pre-training</h2>
+					<p class="input">Arduino (/ɑːrˈdwiːnoʊ/) is an open-source hardware and software company, project, and user community that designs and manufactures single-board microcontrollers and microcontroller kits for building digital devices. Its hardware products are licensed under a CC BY-SA license, while the software is licensed under the GNU Lesser General Public License...</p>
+				</section>
+				<section>
+					<section>
+						<h2>GPT-2 (137M params)</h2>
+						<p><a href="https://huggingface.co/gpt2?text=The+quick+brown+fox" target="_blank">The quick brown fox</a></p>
+						<p><a href="https://huggingface.co/gpt2?text=What+is+a+VPC%3F" target="_blank">What is a VPC?</a></p>
+					</section>
+					<section>
+						<h2>Writer (176M params)</h2>
+						<p><a href="https://huggingface.co/Writer/palmyra-small?text=The+quick+brown+fox" target="_blank">The quick brown fox</a></p>
+						<p><a href="https://huggingface.co/Writer/palmyra-small?text=What+is+a+VPC%3F" target="_blank">What is a VPC?</a></p>
+					</section>
+				</section>
+				<section>
+					<img class="r-stretch" src="images/gall-bladder.png" alt="Gallbladder’s Last Day by the Awkward Yeti">
+				</section>
+				<section>
+					<section>
+						<h2>GPT-2 XL (1.5B params)</h2> 
+						<p><a href="https://huggingface.co/gpt2-xl?text=The+quick+brown+fox" target="_blank">The quick brown fox</a></p>
+						<p><a href="https://huggingface.co/gpt2-xl?text=What+is+a+VPC%3F" target="_blank">What is a VPC?</a></p>
+					</section>
+					<section>
+						<h2><a href="https://platform.openai.com/playground/?mode=complete&model=ada" target="_blank">GPT-3 ada (350M params)</a></h2>
+						<p>Capable of simple tasks, part of the original, base GPT-3 series.</p>
+						<p><span class="input">The quick brown fox<span class="generated"> jumped on to the Tusk and it immediately started scratching, looking for The Great Fox.</span></span></p>
+						<p><span class="input">What is a VPC?<span class="generated"> If you are using AWS, a virtual (virtual private network) is a separate network that a programming call or VM is meant to be on.</span></span></p>
+					</section>
+				</section>
+				<section>
+					<h2><a href="https://platform.openai.com/playground/?mode=complete&amp;model=text-davinci-003" target="_blank">GPT-3 text-davinci-003</a></h2>
+					<div class="r-stack">
+						<div class="fragment fade-out" data-fragment-index="0">
+							<p>The most capable model in the GPT-3 series, it has 175B params.</p>
+							<p><span class="input">The quick brown fox<span class="generated"> jumps over the lazy dog.</span></span></p>
+							<p><span class="input">What is a VPC?<span class="generated"> A Virtual Private Cloud (VPC) is a virtual network dedicated to a single AWS customer.</span></span></p>
+						</div>
+						<div class="fragment" data-fragment-index="0">
+							<p><span class="input">Riddle: What word is pronounced the same if you take away four of its five letters? Answer: <span class="generated">Queue</span></span></p>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h2>Fine-tuning</h2>
+					<p class="input">[INST] Please help me understand how Arduino works. [/INST] Sure, I'd be happy to help you understand how Arduino works! Arduino is an open-source hardware and software platform that allows you to create interactive projects and prototypes. The platform consists of a microcontroller board (such as the Arduino Uno) and a software development environment...</p>
+				</section>
+				<section>
+					<h2>Llama 2 13B Chat</h2>
+					<p class="input" style="font-size: 80%">[INST] What is a VPC? [/INST]<span class="generated">  A Virtual Private Cloud (VPC) is a virtual network dedicated to your use within a larger public cloud, such as Amazon Web Services (AWS) or Microsoft Azure. It allows you to create and manage your own virtual networks, subnets, gateways, and associated security groups in a scalable and secure manner.</span></p>
+				</section>
+				<section>
+					<h2>Fine-tuning</h2>
+					<p class="input" style="font-size: 60%; text-align: left">Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.<br>
+					<br>
+					### Instruction:<br>
+					Summarize the paragraph into a sentence.<br>
+					<br>
+					### Input:<br>
+					When buying furniture, it's important to take into account the overall look and feel of the space. That means that you should ask yourself if the pieces you are selecting are a good match for the existing furnishings as well as what you imagine the overall style to be.<br>
+					<br>
+					### Response:<br>
+					Think about the existing furnishings and desired style when selecting furniture.</p>
+				</section>
+				<section>
+					<section>
+						<h2>Brave Search AI Summarizer</h2>
+						<p>The Summarizer is composed of 3 different LLMs:</p>
+						<ol>
+							<li>Question answering</li>
+							<li>Classifiers for hate-speech, spam, etc.</li> 
+							<li>Summarizer/paraphrasing model</li>
+						</ol>
+						<p><a href="https://search.brave.com/search?q=What%20is%20a%20VPC%3F" target="_blank">Brave search: [What is a VPC?]</a></p>
+					</section>
+					<section style="font-size: 90%">
+						<h2>Brave Search AI Summarizer</h2>
+						<p>The Summarizer is composed of 3 different LLMs:</p>
+						<ol>
+							<li>The first one is QA (question answering): it is used to extract a concrete answer, if any, from text snippets.</li>
+							<li>After the QA extraction phase, result candidates are classified with zero-shot classifiers on a wide variety of criteria (hate-speech, vulgar writing, spam, etc).</li> 
+							<li>The final set of candidate text is ultimately processed by the summarizer/paraphrasing model, which rewrites the input so that repetition is removed and that language is kept uniform to improve readability.</li>
+						</ol>
+						<!-- https://brave.com/ai-summarizer/ -->
+					</section>
+				</section>
+				<section>
+					<h2>Deep dive demo</h2>
+					<p><a href="https://docsgpt.antimetal.com/" target="_blank">AWS Docs GPT</a></p>
+				</section>
+				<section>
+					<section>
+						<h2>Open-access models</h2>
+						<p>BLOOM (176B params, 2022):<br><a href="https://huggingface.co/bigscience/bloom?text=The+quick+brown+fox" target="_blank">The quick brown fox</a>, <a href="https://huggingface.co/bigscience/bloom?text=What+is+a+VPC%3F" target="_blank">What is a VPC?</a></p>
+						<p>Llama 2 (70B params, 2023)</p>
+					</section>
+					<section>
+						<h2>Llama 2</h2>
+						<p><a href="https://arxiv.org/abs/2211.05100">BLOOM: A 176B-Parameter Open-Access Multilingual Language Model</a> by BigScience Workshop (2022)</p>
+						<p><a href="https://arxiv.org/abs/2307.09288">Llama 2: Open Foundation and Fine-Tuned Chat Models</a> by Touvron et al. (Meta, 2023)</p>
+					</section>
+				</section>
+				<section>
+					<h2>Data is not objective</h2>
+					<div style="text-align: left">
+						<p class="input">The man worked as a <span class="generated">carpenter</span><br>
+						The man worked as a <span class="generated">doctor</span><br>
+						The man worked as a <span class="generated">farmer</span></p>
+						<p class="input">The woman worked as a <span class="generated">nurse</span><br>
+						The woman worked as a <span class="generated">waitress</span><br>
+						The woman worked as a <span class="generated">doctor</span></p>
+					</div>
+				</section>
+				<section>
+					<p class="input">"Where did you get this information on how to workaround this Python problem?"<br>
+					"I got it from<span class="generated"> Stack Overflow."</span></p>
+				</section>
+			</div>
+		</div>
+		<script src="dist/reveal.js"></script>
+		<script>
+			Reveal.initialize({
+				hash: true,
+			});
+		</script>
+	</body>
+</html>
