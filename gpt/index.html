@@ -23,6 +23,10 @@
 	padding: 0.1em 0.2em;
 	vertical-align: middle;
 }
+.reveal .options.input {
+	border: 0.1em solid #fc0;
+	color: #fc0;
+}
 .reveal .score {
 	display: inline-block;
 	padding: 0.1em 0.2em 0.1em 0.5em;
@@ -117,7 +121,8 @@
 				</section>
 				<section>
 					<h2>Pitfalls</h2>
-					<p>Similar words (for example, <span class="input">expensive</span> and <span class="input">costly</span>) are treated as completely different. It has to see every word in every possible context.</p>
+					<p class="input">The repair work turned out to be<br>more <span class="options input">costly<br>expensive</span> than we expected.</p>
+					<p>Similar words are treated as completely different. It has to see every word in every possible context.</p>
 				</section>
 				<section>
 					<section>
